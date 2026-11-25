@@ -1,0 +1,33 @@
+
+name: Build ROBO ADVENTURE 3D APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.3.0
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract game project
+        run: |
+          unzip -o ROBO-ADVENTURE-3D-starter.zip
+          cp -r ROBO-ADVENTURE-3D/. .
+          sed -i 's|window/ stretch/mode|window/stretch/mode|' project.godot
+
+      - name: Build APK
+        run: |
+          mkdir -p build
+          godot --headless --path . --export-debug Android build/ROBO-ADVENTURE-3D.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ROBO-ADVENTURE-3D-APK
+          path: build/ROBO-ADVENTURE-3D.apk
